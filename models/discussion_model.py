@@ -5,4 +5,4 @@ class Discussion(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     idea_id = db.Column(db.Integer)
     comment = db.Column(db.Text)
-    username = db.Column(db.String(100))
+    
