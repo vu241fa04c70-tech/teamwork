@@ -12,7 +12,7 @@ def token_required(f):
         token = request.headers.get("Authorization")
 
         if not token:
-            return jsonify({"message":"Token Missing"}),401
+            return jsonify({"message":"Token Missed"}),401
 
         try:
             jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
