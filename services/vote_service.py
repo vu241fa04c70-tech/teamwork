@@ -11,4 +11,4 @@ def add_vote(data):
     db.session.add(vote)
     db.session.commit()
 
-    return {"message":"Vote Added"}
+    return {"message":"Vote Add"}
