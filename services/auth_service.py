@@ -7,6 +7,15 @@ SECRET_KEY = "secretkey"
 
 def register_user(data):
 
+    existing_user = User.query.filter_by(
+        email=data['email']
+    ).first()
+
+    if existing_user:
+        return {
+            "message": "Email already registered"
+        }
+
     user = User(
         username=data['username'],
         email=data['email'],
@@ -16,7 +25,9 @@ def register_user(data):
     db.session.add(user)
     db.session.commit()
 
-    return {"message":"User Registered"}
+    return {
+        "message": "User Registered Successfully"
+    }
 
 def login_user(data):
 
