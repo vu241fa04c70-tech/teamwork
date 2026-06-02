@@ -11,3 +11,4 @@ requests
 razorpay
 google-generativeai
 gunicorn
+Flask-Cors
