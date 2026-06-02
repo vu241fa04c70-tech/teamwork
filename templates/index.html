@@ -1,11 +1,174 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Startup Validation Platform</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Startup Idea Validation Platform</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+body{background:#0f172a;color:white}
+nav{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:#1e293b;position:sticky;top:0}
+.logo{font-size:24px;font-weight:bold}
+.nav-links{display:flex;gap:15px}
+.nav-links a{color:white;text-decoration:none}
+.menu{display:none;cursor:pointer}
+.hero,.section{padding:40px 20px}
+.card{background:#334155;padding:15px;border-radius:10px;margin:10px 0}
+input,textarea{width:100%;padding:10px;margin:8px 0;border-radius:5px;border:none}
+button{padding:10px 15px;border:none;border-radius:5px;cursor:pointer;margin:5px}
+.primary{background:#2563eb;color:white}
+.success{background:#10b981;color:white}
+.hidden{display:none}
+@media(max-width:768px){
+.nav-links{display:none;flex-direction:column;width:100%}
+.nav-links.active{display:flex}
+.menu{display:block}
+nav{flex-wrap:wrap}
+}
+</style>
 </head>
 <body>
 
-    <h1>Collaborative Startup Idea Validation Platform</h1>
+<nav>
+<div class="logo">🚀 Startup Validator</div>
+<div class="nav-links" id="navLinks">
+<a href="#home">Home</a>
+<a href="#ideas">Ideas</a>
+<a href="#discussion">Discussion</a>
+<a href="#survey">Survey</a>
+<a href="#reports">Reports</a>
+</div>
+<div class="menu" onclick="toggleMenu()">☰</div>
+</nav>
+
+<section id="home" class="hero">
+<h1>Validate Your Startup Idea</h1>
+<p>Submit, Vote, Discuss, Survey and Generate Reports.</p>
+<button class="primary" onclick="showForm()">Submit Idea</button>
+<button class="success" onclick="document.getElementById('ideas').scrollIntoView()">Explore Ideas</button>
+</section>
+
+<section id="ideas" class="section">
+<h2>💡 Ideas</h2>
+
+<div id="ideaForm" class="card hidden">
+<input id="title" placeholder="Idea Title">
+<textarea id="description" placeholder="Idea Description"></textarea>
+<button class="primary" onclick="submitIdea()">Submit</button>
+</div>
+
+<div id="ideasContainer"></div>
+</section>
+
+<section id="discussion" class="section">
+<h2>💬 Discussion</h2>
+<div class="card">
+<textarea id="discussionText" placeholder="Start a discussion"></textarea>
+<button class="success" onclick="postDiscussion()">Post</button>
+<div id="discussionList"></div>
+</div>
+</section>
+
+<section id="survey" class="section">
+<h2>📋 Survey</h2>
+<div class="card">
+<label><input type="radio" name="survey" value="Excellent"> Excellent</label><br>
+<label><input type="radio" name="survey" value="Good"> Good</label><br>
+<label><input type="radio" name="survey" value="Average"> Average</label><br>
+<button class="primary" onclick="submitSurvey()">Submit Survey</button>
+<div id="surveyResult"></div>
+</div>
+</section>
+
+<section id="reports" class="section">
+<h2>📊 Reports</h2>
+<div class="card">
+<button class="success" onclick="generateReport()">Generate Report</button>
+<div id="report"></div>
+</div>
+</section>
+
+<script>
+function toggleMenu(){
+document.getElementById('navLinks').classList.toggle('active');
+}
+
+function showForm(){
+document.getElementById('ideaForm').classList.remove('hidden');
+}
+
+function submitIdea(){
+let title=document.getElementById('title').value;
+let description=document.getElementById('description').value;
+
+if(!title || !description){alert('Fill all fields');return;}
+
+let ideas=JSON.parse(localStorage.getItem('ideas')||'[]');
+ideas.push({title,description,votes:0,comments:[]});
+localStorage.setItem('ideas',JSON.stringify(ideas));
+
+document.getElementById('title').value='';
+document.getElementById('description').value='';
+loadIdeas();
+}
+
+function loadIdeas(){
+let ideas=JSON.parse(localStorage.getItem('ideas')||'[]');
+let html='';
+
+ideas.forEach((idea,i)=>{
+html+=`
+<div class="card">
+<h3>${idea.title}</h3>
+<p>${idea.description}</p>
+<p>Votes: ${idea.votes}</p>
+<button class="success" onclick="vote(${i},1)">👍</button>
+<button class="primary" onclick="vote(${i},-1)">👎</button>
+<input id="c${i}" placeholder="Comment">
+<button onclick="commentIdea(${i})">Comment</button>
+${idea.comments.map(c=>`<p>💬 ${c}</p>`).join('')}
+</div>`;
+});
+
+document.getElementById('ideasContainer').innerHTML=html;
+}
+
+function vote(i,val){
+let ideas=JSON.parse(localStorage.getItem('ideas'));
+ideas[i].votes+=val;
+localStorage.setItem('ideas',JSON.stringify(ideas));
+loadIdeas();
+}
+
+function commentIdea(i){
+let ideas=JSON.parse(localStorage.getItem('ideas'));
+let c=document.getElementById('c'+i).value;
+if(c) ideas[i].comments.push(c);
+localStorage.setItem('ideas',JSON.stringify(ideas));
+loadIdeas();
+}
+
+function postDiscussion(){
+let txt=document.getElementById('discussionText').value;
+let list=document.getElementById('discussionList');
+if(txt) list.innerHTML += '<p>🗨️ '+txt+'</p>';
+document.getElementById('discussionText').value='';
+}
+
+function submitSurvey(){
+let v=document.querySelector('input[name="survey"]:checked');
+document.getElementById('surveyResult').innerHTML=v?'Selected: '+v.value:'Select an option';
+}
+
+function generateReport(){
+let ideas=JSON.parse(localStorage.getItem('ideas')||'[]');
+let votes=ideas.reduce((a,b)=>a+b.votes,0);
+document.getElementById('report').innerHTML=
+`<p>Total Ideas: ${ideas.length}</p><p>Total Votes: ${votes}</p>`;
+}
+
+loadIdeas();
+</script>
 
 </body>
 </html>

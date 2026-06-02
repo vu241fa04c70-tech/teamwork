@@ -1,5 +1,7 @@
-from flask import Flask
+from flask import Flask, render_template
+from flask_cors import CORS
 from flasgger import Swagger
+
 from config.database import db
 
 from routes.auth_routes import auth_bp
@@ -12,12 +14,17 @@ from routes.dashboard_routes import dashboard_bp
 
 app = Flask(__name__)
 
+# Enable CORS
+CORS(app)
+
+# Database Configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///startup_validation.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'secretkey'
 
 db.init_app(app)
 
+# Swagger Configuration
 swagger_template = {
     "swagger": "2.0",
     "info": {
@@ -25,7 +32,6 @@ swagger_template = {
         "description": "Collaborative Research APIs",
         "version": "1.0"
     },
-
     "tags": [
         {
             "name": "Authentication",
@@ -57,8 +63,10 @@ swagger_template = {
         }
     ]
 }
+
 Swagger(app, template=swagger_template)
 
+# Register Blueprints
 app.register_blueprint(auth_bp)
 app.register_blueprint(idea_bp)
 app.register_blueprint(vote_bp)
@@ -67,14 +75,15 @@ app.register_blueprint(survey_bp)
 app.register_blueprint(report_bp)
 app.register_blueprint(dashboard_bp)
 
+# Create Tables
 with app.app_context():
     db.create_all()
 
+# Frontend Route
 @app.route('/')
 def home():
-    return {
-        "message": "Collaborative Startup Idea Validation Platform"
-    }
+    return render_template("index.html")
 
+# Run Application
 if __name__ == '__main__':
     app.run(debug=True)
