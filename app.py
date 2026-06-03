@@ -3,6 +3,7 @@ from flask_cors import CORS
 from flasgger import Swagger
 
 from config.database import db
+from routes.future_routes import future_bp
 
 from routes.auth_routes import auth_bp
 from routes.idea_routes import idea_bp
@@ -11,6 +12,7 @@ from routes.discussion_routes import discussion_bp
 from routes.survey_routes import survey_bp
 from routes.report_routes import report_bp
 from routes.dashboard_routes import dashboard_bp
+from routes.analytics_routes import analytics_bp
 
 app = Flask(__name__)
 
@@ -74,6 +76,11 @@ app.register_blueprint(discussion_bp)
 app.register_blueprint(survey_bp)
 app.register_blueprint(report_bp)
 app.register_blueprint(dashboard_bp)
+app.register_blueprint(
+    analytics_bp,
+    url_prefix="/analytics"
+)
+app.register_blueprint(future_bp, url_prefix="/future")
 
 # Create Tables
 with app.app_context():
